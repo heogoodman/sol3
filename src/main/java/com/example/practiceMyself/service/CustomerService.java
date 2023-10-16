@@ -17,8 +17,15 @@ import java.util.stream.Collectors;
 // @Transactional 을 사용하는 이유는 문제가 생겼을 때 롤백을 하기 위해
 @Transactional
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor  //파이널로 썼던 것들을 생성자로 만들어 주는 어노테이션
 public class CustomerService {
+
+    //    //Constructor Injection
+//    public UserService(UserRepository userRepository, ModelMapper) {
+//        this.userRepository = userRepository;
+//        this.modelMapper = modelMapper;
+//    }
+
     private final CustomerRepository customerRepository;
     //
     private final ModelMapper modelMapper;
@@ -58,6 +65,9 @@ public class CustomerService {
         Customer exitCustomer = customerRepository.findByEmail(email)
                 .orElseThrow(()-> new BusinessException(email + "user not found", HttpStatus.NOT_FOUND));
         exitCustomer.setName(customerReqDto.getName());
+        // map을 통해서 Customer entity를 CustomerResDto로 바꿔줌
+        // 엔티티를 바로 쓰지 않는 이유는 보안상 회원의 모든 정보를 출력할 수 없기 때문에 필요한 정보만
+        // CustomerResDto를 통해 출력해줌
         return modelMapper.map(exitCustomer, CustomerResDto.class);
     }
 
