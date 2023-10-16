@@ -34,7 +34,9 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public CustomerResDto getCustomerId(Long id) {
         Customer customer = customerRepository.findById(id)
+                // 아이디로 사용자를 찾지 못할 시 BusinessException으로 예외를 발생시킴
                 .orElseThrow(()->new BusinessException("can't find user", HttpStatus.NOT_FOUND));
+        // customer를 CustomerResDto로 바꿔주기 위해 map을 사용
         CustomerResDto customerResDto = modelMapper.map(customer, CustomerResDto.class);
         return customerResDto;
     }
@@ -42,15 +44,18 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public List<CustomerResDto> getCustomer() {
         List<Customer> customersList = customerRepository.findAll();
+        // Stream의 Customer로 바꾸고
         List<CustomerResDto> customerResDtoList = customersList.stream()
+                // Stream의 CustomerResDto로 변경
+                // 배열로 잡는 것을 맵을 통해서 customer를 하나씩 가져온 것을 CustomerResDto로 변경 후
                 .map(customer -> modelMapper.map(customer, CustomerResDto.class))
+                // List로 다시 변경
                 .collect(Collectors.toList());
         return customerResDtoList;
     }
 
     public CustomerResDto updateCustomer(String email, CustomerReqDto customerReqDto) {
         Customer exitCustomer = customerRepository.findByEmail(email)
-                // 이메일로 사용자를 찾지 못할 시 BusinessException으로 예외를 발생시킴
                 .orElseThrow(()-> new BusinessException(email + "user not found", HttpStatus.NOT_FOUND));
         exitCustomer.setName(customerReqDto.getName());
         return modelMapper.map(exitCustomer, CustomerResDto.class);
